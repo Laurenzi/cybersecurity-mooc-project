@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Signups</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+    <body>
+        <h1>Welcome, admin!</h1>
+        <div>Here you can find the list of all signups:</div>
+        <table th:if="${signups.size() != 0}">
+            <thead>
+            <th>Name:</th>
+            <th>Address:</th>
+            <th></th>
+        </thead>
+        <tbody>
+            <tr th:each="signup : ${signups}" th:attr="signupid=${signup.id}">
+                <td th:utext="${signup.name}"></td>
+                <td th:text="${signup.address}"></td>
+                <td><button th:onclick="'deleteSignup(' + ${signup.id} + ');'">Delete</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <div th:if="${signups.size() == 0}">No signups yet!</div>
+    <div sec:authorize="isAuthenticated()">
+        <form method="POST" th:action="@{/logout}">
+            <input type="submit" value="logout"></input>
+        </form>
+    </div>
+    <script type="text/javascript" th:inline="javascript">
+        var url = /*[[@{/signups}]]*/ null;
+        function deleteSignup(id) {
+            console.log(id);
+            var http = new XMLHttpRequest();
+            http.open("DELETE", url + "/" + id, true);
+            http.setRequestHeader("Content-type", "application/json");
+
+            http.onreadystatechange = function () {
+                if (http.readyState === 4) {
+                    if (http.status === 204) {
+                        removeSignupFromDOM(id);
+                    }
+                }
+            };
+            http.send();
+        }
+
+        function removeSignupFromDOM(id) {
+            console.log("removedom");
+            console.log(id);
+            console.log("tr[signupid='" + id + "']");
+            document.querySelector("tr[signupid='" + id + "']").remove();
+        }
+    </script>
+</body>
+</html>
